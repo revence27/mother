@@ -4,3 +4,4 @@
 .pydevproject
 localsettings.py
 .settings
+mother_project/script.log

@@ -49,10 +49,8 @@ def mr_autoreg(**kwargs):
             contact.reporting_location = find_best_response(session, location_poll) or find_best_response(session, locationcr_poll) or Location.tree.root_nodes()[0]
         #   TODO:   What to do for the names?
         last_menses = find_best_response(session, menses_poll)
-        if last_menses:
-            contact.last_menses = datetime.now() - timedelta(weeks = last_menses)
-        else:
-            contact.last_menses = datetime.now() - timedelta(days = 45)
+        if last_menses != None:
+            contact.last_menses = datetime.now() - timedelta(weeks = max(last_menses, 1.0))
         contact.anc_visits = find_best_response(session, visits_poll) or 0
         contact.save()
     elif escargot == 'mrs_hw_autoreg':
@@ -150,22 +148,6 @@ def init_structures(sender, **kwargs):
 def init_autoreg(sender, **kwargs):
     script = None
     try:
-        script  =   Script.objects.get(slug = 'mrs_opt_out')
-        script.delete()
-    except Script.DoesNotExist:
-        pass
-    # script = Script.objects.create(slug =   'mrs_opt_out',
-    #                                name = "General opt-out script")
-    # script.steps.add(ScriptStep.objects.create(
-    #     script=script,
-    #     message="You will no longer receive FREE messages from Mother Reminder. If you want to join again please send JOIN to 6400.",
-    #     order=0,
-    #     rule=ScriptStep.WAIT_MOVEON,
-    #     start_offset=0,
-    #     giveup_offset=60,
-    # ))
-    script = None
-    try:
         script  =   Script.objects.get(slug = 'mrs_autoreg')
         script.delete()
     except Script.DoesNotExist:
@@ -202,7 +184,7 @@ def init_autoreg(sender, **kwargs):
         script=script,
         poll=Poll.objects.create(
             user=user, \
-            type=Poll.TYPE_LOCATION, \
+            type=Poll.TYPE_LOCATION_DISTRICT, \
             name='mrs_location_corrector',
             question="Mother Reminder didn't recognize your district. Please carefully type the name of your district and re-send.",
             default_response='', \

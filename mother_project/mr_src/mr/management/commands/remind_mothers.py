@@ -22,16 +22,19 @@ class Command(BaseCommand):
       for day in this_week.keys():
         mother_queue  = Queue.Queue()
         this_day      = this_week[day]
+        # for mother in Contact.objects.raw('''SELECT * FROM rapidsms_contact WHERE ((NOW() :: DATE) - ('%d WEEK %d DAY' :: INTERVAL)) :: DATE = last_menses :: DATE''' % (week, day)):
         # for mother in Contact.objects.raw('''SELECT * FROM rapidsms_contact WHERE (last_menses + ('%d WEEK %d DAY' :: INTERVAL)) :: DATE = NOW() :: DATE''' % (week, day)):
         # Because Django ORM speaks pidgin: “today” will be encoded as “between end of yesterday and start of tomorrow”. Hahaha. As long as it is not SQL.
-        back_then = datetime.now() - timedelta(weeks = week, days = day)
-        prior_day = back_then - timedelta(days = 1)
-        mothers   = Contact.objects.filter(interested = True, last_menses__range = (prior_day, back_then)).exclude(connection = None)
-        if not mothers.count():
-          continue
-        sys.stderr.write('Sending (for week %d, day %d):\n%s\n\nTo %s mothers between %s and %s.\n' % (week, day, this_day, mothers.count(), prior_day.strftime('%d-%m-%Y'), back_then.strftime('%d-%m-%y')))
+        # back_then = datetime.now() - timedelta(weeks = week, days = day)
+        # prior_day = back_then - timedelta(days = 1)
+        # mothers   = Contact.objects.filter(interested = True, last_menses__range = (prior_day, back_then)).exclude(connection = None)
+        mothers   = Contact.objects.raw('''SELECT * FROM rapidsms_contact WHERE ((NOW() :: DATE) - ('%d WEEK %d DAY' :: INTERVAL)) :: DATE = last_menses :: DATE''' % (week, day - 1))
+        sending   = []
         for mother in mothers:
-          msg = Message.objects.create(connection = mother.default_connection, status = 'Q', direction = 'O', text = this_day)
+          if not mother.default_connection:
+            continue
+          sending.append(mother.default_connection.identity)
+          msg     = Message.objects.create(connection = mother.default_connection, status = 'Q', direction = 'O', text = this_day)
           # msg.save() or sys.stderr.write('FAILED.\n')
           if msg:
             sys.stderr.write('%s (%s)\n' % (mother.default_connection.identity, mother.last_menses.strftime('%d-%m-%Y')))
@@ -40,4 +43,6 @@ class Command(BaseCommand):
               sys.stderr.write('FAILED.\n') # Colorise?
             else:
               sys.stderr.write('FAILED.\n')
-        sys.stderr.write('\n' + ('==' * 12) + '\n')
+        if sending:
+          sys.stderr.write('Sending to %d mothers (week %d, day %d):\n%s\n\n%s\n' % (len(sending), week, day, this_day, ', '.join(sending)))
+          sys.stderr.write('\n' + ('==' * 12) + '\n')

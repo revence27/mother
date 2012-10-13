@@ -38,9 +38,9 @@ class App (AppBase):
         if (not message.connection.contact) or (not ScriptProgress.objects.filter(connection = message.connection)):
             # if match:
             if True:  # Any word goes for registration.
-                message.connection.contact = Contact.objects.create(name='Anonymous User')
+                message.connection.contact = Contact.objects.create(name  = 'Anonymous User')
                 message.connection.contact.interested  = True
-                message.connection.contact.last_menses = datetime.now() - timedelta(days = 45)
+                message.connection.contact.last_menses = datetime.now() - timedelta(days = 42)
                 message.connection.contact.save()
                 message.connection.save()
                 ScriptProgress.objects.create(

@@ -19,7 +19,7 @@ from script.models import ScriptProgress, Script
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
       make_option('-a', '--all',  dest = 'all'),
-      make_option('-t', '--text', dest = 'text'),
+      make_option('-t', '--text', dest = 'text')
     )
 
     def handle(self, **options):
@@ -30,16 +30,16 @@ class Command(BaseCommand):
             lastweek  = outmsgs[-1]
             query     = Contact.objects.filter(interested = True).exclude(connection  = None)
             if not options.get('all'):
-              query.filter(last_menses__lt = (datetime.now() - timedelta(weeks=lastweek)))
+                query.filter(last_menses__lt = (datetime.now() - timedelta(weeks=lastweek)))
 
             for mother in query:
                 last_optout = Message.objects.filter(connection=mother.default_connection).filter(text=text).order_by('-date')
                 message     = Message(connection  = mother.default_connection, direction  = 'O', status = 'Q', text = text)
                 if not last_optout:
-                    msg.save()
+                    message.save()
                 else:
                     if last_optout[0].date + timedelta(weeks=8) <= datetime.now():
-                        msg.save()
+                        message.save()
 
                         # msg.save()
                         # application, batch, connection, date, direction, flags, id, in_response_to, poll, poll_responses, priority, responses, status, submissions, text

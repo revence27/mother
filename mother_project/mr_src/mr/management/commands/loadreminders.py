@@ -43,22 +43,31 @@ class Command(BaseCommand):
     path  = options.get('file')
     if not path:
       raise ValueError, 'Provide a path with -f --file .'
+    weeks = []
+    days  = []
     with open(path) as f:
       while True:
         try:
           x, y, week, day, z, a, b, text, c, d = f.readline().split('\t')
           text  = text[1:-1]
           rm  = None
+          wk  = int(week)
+          dy  = int(day)
           try:
-            rm  = ReminderMessage.objects.get(week_number = int(week),
-                                              day_number  = int(day))
+            rm  = ReminderMessage.objects.get(week_number = wk,
+                                              day_number  = dy)
             rm.reminder_text  = text
           except ReminderMessage.DoesNotExist:
-            rm  = ReminderMessage(week_number   = int(week),
-                                  day_number    = int(day),
+            rm  = ReminderMessage(week_number   = wk,
+                                  day_number    = dy,
                                   reminder_text = text)
           rm.save()
+          weeks.append(wk)
+          days.append(dy)
         except ValueError:
           break
         except StopIteration:
           break
+    for unused in ReminderMessage.objects.exclude(week_number__in = weeks, day_number__in = days):
+      sys.stderr.write('Deleting unused reminder for week %d, day %d.\n' % (unused.week_number, unused.day_number))
+      unused.delete()

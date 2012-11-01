@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="module">
-<h2>Mother {{ mother.name }} : Reminder Schedule</h2>
-<ul style="font-size:16px;font-family:'Trebuchet MS'">
-{% for date, message in reminders %}
-    <li><b>{{ date|date:"Y-m-d" }}</b> : {{ message }}</li>
-{% endfor %}
-</ul>
+<h2>Mother: {{ mother.name }} ({{	mother.default_connection.identity	}})</h2>
+Last Menses: {{	mother.last_menses	}}
+{%	if not mother.interested	%}
+(no longer enrolled)
+{%	endif	%}
 </div>
 {% endblock %}

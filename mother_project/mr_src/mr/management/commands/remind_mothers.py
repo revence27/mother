@@ -28,7 +28,7 @@ class Command(BaseCommand):
         # back_then = datetime.now() - timedelta(weeks = week, days = day)
         # prior_day = back_then - timedelta(days = 1)
         # mothers   = Contact.objects.filter(interested = True, last_menses__range = (prior_day, back_then)).exclude(connection = None)
-        mothers   = Contact.objects.raw('''SELECT * FROM rapidsms_contact WHERE ((NOW() :: DATE) - ('%d WEEK %d DAY' :: INTERVAL)) :: DATE = last_menses :: DATE''' % (week, day - 1))
+        mothers   = Contact.objects.raw('''SELECT * FROM rapidsms_contact WHERE interested AND ((NOW() :: DATE) - ('%d WEEK %d DAY' :: INTERVAL)) :: DATE = last_menses :: DATE''' % (week, day - 1))
         sending   = []
         for mother in mothers:
           if not mother.default_connection:

@@ -158,7 +158,7 @@ def init_autoreg(sender, **kwargs):
     location_poll = Poll.objects.create
     script.steps.add(ScriptStep.objects.create(
         script  = script,
-        message = "Thank you for joining Mother Reminder - a great way for fathers and mothers to get the information they need to have a healthy baby. All messages FREE!",
+        message = "Thank you for joining Mother Reminder - a great way for mothers and fathers to get the information they need to have a healthy baby. All messages FREE!",
         order   = 0,
         rule    = ScriptStep.WAIT_MOVEON,
         start_offset  = 0,
@@ -218,7 +218,7 @@ def init_autoreg(sender, **kwargs):
             user=user,
             type=Poll.TYPE_NUMERIC,
             name='mrs_anc_visits',
-            question="You are almost there! One last question, how many times has the mother gone to the clinic during pregnancy? Please reply with the number of visits.",
+            question="You are almost there! One last question, how many times has the mother gone to a health facility during this pregnancy? Please reply with the number of visits.",
             default_response=''
         ),
         order=4,

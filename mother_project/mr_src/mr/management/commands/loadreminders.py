@@ -49,7 +49,7 @@ class Command(BaseCommand):
       while True:
         try:
           x, y, week, day, z, a, b, text, c, d = f.readline().split('\t')
-          text  = text[1:-1]
+          if len(text) > 2 and text[0] == '"'[0]:  text = text[1:-1]
           rm  = None
           wk  = int(week)
           dy  = int(day)
